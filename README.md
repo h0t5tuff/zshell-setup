@@ -1,4 +1,4 @@
-What you do is simply put these two files in your home directory!
+What you do is simply put these two files in your home directory! also put sanity in Users/tensor/.local/bin
 
 
 
