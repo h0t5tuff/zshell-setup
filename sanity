@@ -1,266 +1,167 @@
 #!/usr/bin/env zsh
-# /Users/tensor/sanity
-# Robust, read-only sanity check for your zsh environment and physics stack.
-#
-# Usage:
-#   sanity            # brief summary
-#   sanity --brief    # brief summary
-#   sanity --full     # full report
+# Enhanced sanity check script 🧠
+# Location: ~/sanity
 
 emulate -L zsh
 setopt pipefail
 setopt nonomatch
 
+# 🧪 Mode selection
 mode="brief"
 case "${1:-}" in
   ""|--brief) mode="brief" ;;
   --full) mode="full" ;;
-  *) print "Usage: sanity [--brief|--full]"; exit 2 ;;
+  *) echo "Usage: sanity [--brief|--full]"; exit 2 ;;
 esac
 
-want_py="/opt/homebrew/opt/python@3.12/libexec/bin/python3"
+want_py="/opt/homebrew/opt/python@3.12/bin/python3.12"
 
-hr() { [[ "$mode" == "full" ]] && print -P "%F{cyan}------------------------------------------------------------%f"; }
-section() { [[ "$mode" == "full" ]] && { hr; print -P "%F{cyan}== $1 ==%f"; } }
+hr() { [[ "$mode" == "full" ]] && echo -e "\n🔹───────────────────────────────────────────────────────"; }
+section() { [[ "$mode" == "full" ]] && { hr; echo "📦 $1"; } }
 
-# Print a colon-separated env var as lines
-print_colon_var() {
-  local name="$1"
-  local val="${(P)name}"
-
-  print "$name:"
-  if [[ -z "$val" ]]; then
-    print "  unset"
-    return 0
-  fi
-
-  local -a parts
-  parts=(${(s/:/)val})
-  (( ${#parts} )) || { print "  empty"; return 0; }
-  print -rl -- $parts | sed 's/^/  /'
-}
-
-# PATH analysis
+# 🔍 PATH analysis
 typeset -a path_entries
 path_entries=(${(s/:/)PATH})
-
 typeset -A seen
 typeset -a missing dups
+
 for p in $path_entries; do
   [[ -z "$p" ]] && continue
   [[ -d "$p" ]] || missing+=("$p")
-  if [[ -n "${seen[$p]}" ]]; then
-    dups+=("$p")
-  else
-    seen[$p]=1
-  fi
+  (( seen[$p]++ )) && dups+=("$p")
 done
 
-# Ignore common ephemeral macOS paths (Cryptex / bootstrap, etc.)
 typeset -a ignore_missing=(
   "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
   "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
   "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
   "/opt/pmk/env/global/bin"
 )
-typeset -a missing_filtered
-for p in $missing; do
-  (( ${ignore_missing[(Ie)$p]} )) && continue
-  missing_filtered+=("$p")
-done
-missing=($missing_filtered)
+missing=(${missing:#(${(j:|:)~ignore_missing})})
 
-# Python
-found_py="$(command -v python3 2>/dev/null || true)"
-py_version="$(python3 -V 2>/dev/null || true)"
-py_exe="$(python3 - <<'PY' 2>/dev/null
-import sys
-print(sys.executable)
-PY
-)"
+# 🐍 Python
+found_py=$(which python3 2>/dev/null)
+py_version=$(python3 -V 2>/dev/null)
+py_exe=$(python3 -c 'import sys; print(sys.executable)' 2>/dev/null)
 
-# pipx / pip
-pip_path="$(command -v pip 2>/dev/null || true)"
-pip3_path="$(command -v pip3 2>/dev/null || true)"
-pipx_path="$(command -v pipx 2>/dev/null || true)"
+# 📦 pip & pipx
+pipx_path=$(which pipx 2>/dev/null)
+pipx_default_py=$(pipx environment 2>/dev/null | awk -F= '/PIPX_DEFAULT_PYTHON/{print $2}' | head -n1)
+pipx_apps_py=$(pipx list 2>/dev/null | awk '/installed using Python/ {print $NF}' | head -n1)
 
-pipx_default_py=""
-pipx_apps_py=""
-if [[ -n "$pipx_path" ]]; then
-  # Prefer derived "PIPX_DEFAULT_PYTHON=..." line (stable parsing)
-  pipx_default_py="$(pipx environment 2>/dev/null | awk -F'=' '/^PIPX_DEFAULT_PYTHON=/ {print $2; exit}')"
-  pipx_apps_py="$(pipx list 2>/dev/null | awk '/installed using Python/ {print $NF}' | head -n 1)"
-fi
+# 🍺 Homebrew
+brew_path=$(which brew 2>/dev/null)
+brew_prefix=$(brew --prefix 2>/dev/null)
+brew_ver=$(brew --version 2>/dev/null | head -n1)
 
-# Brew
-brew_path="$(command -v brew 2>/dev/null || true)"
-brew_prefix=""
-brew_ver=""
-if [[ -n "$brew_path" ]]; then
-  brew_prefix="$(brew --prefix 2>/dev/null || true)"
-  brew_ver="$(brew --version 2>/dev/null | head -n 1)"
-fi
-
-# Physics vars
+# 🧬 Physics vars
 ROOTSYS_v="${ROOTSYS:-}"
 GEANT4_BASE_v="${GEANT4_BASE:-}"
 Geant4_DIR_v="${Geant4_DIR:-}"
 REMAGE_PREFIX_v="${REMAGE_PREFIX:-}"
 BXDECAY0_PREFIX_v="${BXDECAY0_PREFIX:-}"
 
-# -------- brief mode --------
+# 🧾 Brief mode summary
 if [[ "$mode" == "brief" ]]; then
-  # Flags
-  py_ok=0; [[ -n "$found_py" && -x "$want_py" && "$found_py" == "$want_py" ]] && py_ok=1
-  pipx_ok=0; [[ -n "$pipx_path" ]] && pipx_ok=1
-  g4_ok=0; [[ -n "$GEANT4_BASE_v" ]] && g4_ok=1
-  root_ok=0; [[ -n "$ROOTSYS_v" ]] && root_ok=1
+  py_ok=$([[ "$found_py" == "$want_py" ]] && echo 1 || echo 0)
+  pipx_ok=$([[ -n "$pipx_path" ]] && echo 1 || echo 0)
+  g4_ok=$([[ -n "$GEANT4_BASE_v" ]] && echo 1 || echo 0)
+  root_ok=$([[ -n "$ROOTSYS_v" ]] && echo 1 || echo 0)
 
-  print -P "%F{cyan}sanity%f  zsh=$ZSH_VERSION  arch=$(uname -m)  flavor=${ENV_FLAVOR:-unset}"
-  print -P "PATH: missing_dirs=${#missing}  dup_entries=${#${(u)dups}}"
-  print -P "python3: ${found_py:-not found}  ${py_version:-}"
-  print -P "pipx: ${pipx_path:-not found}  default_py=${pipx_default_py:-unknown}  apps_py=${pipx_apps_py:-unknown}"
-  print -P "brew: ${brew_path:-not found}  prefix=${brew_prefix:-unknown}"
-  print -P "ROOTSYS=${ROOTSYS_v:-unset}  GEANT4_BASE=${GEANT4_BASE_v:-unset}"
+  echo -e "🧠 \033[1mSanity\033[0m  ZSH=$ZSH_VERSION  ARCH=$(uname -m)  FLAVOR=${ENV_FLAVOR:-unset}"
+  echo -e "📂 PATH: missing_dirs=${#missing}  dup_entries=${#${(u)dups}}"
+  echo -e "🐍 Python: ${found_py:-not found}  ${py_version:-}"
+  echo -e "📦 Pipx: ${pipx_path:-not found}  default=${pipx_default_py:-?}  app=${pipx_apps_py:-?}"
+  echo -e "🍺 Brew: ${brew_path:-not found}  prefix=${brew_prefix:-?}"
 
-  print -n "status: "
-  (( py_ok ))   && print -n "PY=ok "   || print -n "PY=check "
-  (( pipx_ok )) && print -n "PIPX=ok " || print -n "PIPX=check "
-  (( g4_ok ))   && print -n "G4=ok "   || print -n "G4=check "
-  (( root_ok )) && print -n "ROOT=ok " || print -n "ROOT=check "
-  (( ${#missing} == 0 )) && print -n "PATH=ok" || print -n "PATH=warn"
-  print
+  echo -n "✅ Status: "
+  [[ "$py_ok" -eq 1 ]] && echo -n "PY=ok " || echo -n "PY=check "
+  [[ "$pipx_ok" -eq 1 ]] && echo -n "PIPX=ok " || echo -n "PIPX=missing "
+  [[ "$g4_ok" -eq 1 ]] && echo -n "G4=ok " || echo -n "G4=unset "
+  [[ "$root_ok" -eq 1 ]] && echo -n "ROOT=ok " || echo -n "ROOT=unset "
+  (( ${#missing} == 0 )) && echo "PATH=ok" || echo "PATH=warn"
 
   exit 0
 fi
 
-# -------- full mode --------
-section "Shell"
-print "ZSH:       $ZSH_VERSION"
-print "ARCH:      $(uname -m)"
-print "ENV_FLAVOR:${ENV_FLAVOR:+ }${ENV_FLAVOR:- unset}"
-print "PWD:       $PWD"
+# 🧾 Full mode
+section "🖥️ Shell"
+echo "ZSH:       $ZSH_VERSION"
+echo "ARCH:      $(uname -m)"
+echo "FLAVOR:    ${ENV_FLAVOR:-unset}"
+echo "PWD:       $PWD"
 
-section "PATH (first 35)"
-integer max=35 n=${#path_entries}
-(( n < max )) && max=$n
-integer i
-for i in {1..$max}; do
-  printf "%6d\t%s\n" $i "$path_entries[$i]"
+section "📂 PATH Entries"
+for i in {1..${#path_entries}}; do
+  printf "%2d. %s\n" $i "$path_entries[$i]"
 done
 
 if (( ${#missing} )); then
-  print -P "\n%F{yellow}WARN%f: PATH entries that do not exist (${#missing})"
+  echo -e "\n⚠️  Missing PATHs:"
   print -rl -- $missing | sed 's/^/  - /'
 else
-  print -P "\n%F{green}OK%f: all PATH entries exist (ignoring known-ephemeral entries)"
+  echo "✅ All PATH entries exist"
 fi
 
 if (( ${#dups} )); then
-  print -P "%F{yellow}WARN%f: duplicate PATH entries (${#${(u)dups}} unique duplicates)"
+  echo -e "\n⚠️  Duplicate PATH entries:"
   print -rl -- ${(u)dups} | sed 's/^/  - /'
 else
-  print -P "%F{green}OK%f: no duplicate PATH entries"
+  echo "✅ No duplicate PATH entries"
 fi
 
-section "Python"
-print "python3: ${found_py:-not found}"
-[[ -n "$found_py" ]] && {
-  print "$py_version"
-  print "sys.executable: ${py_exe:-unknown}"
-}
-if [[ -x "$want_py" ]]; then
-  if [[ "$found_py" == "$want_py" ]]; then
-    print -P "%F{green}OK%f: python3 matches intended python@3.12 shim"
-  else
-    print -P "%F{red}FAIL%f: python3 does not match intended shim"
-    print "  intended: $want_py"
-    print "  current : ${found_py:-not found}"
-  fi
+section "🐍 Python"
+echo "which: $found_py"
+echo "version: $py_version"
+echo "sys.executable: $py_exe"
+if [[ "$found_py" == "$want_py" ]]; then
+  echo "✅ python3 matches configured version"
 else
-  print -P "%F{yellow}WARN%f: intended shim missing: $want_py"
+  echo "⚠️  python3 mismatch"
+  echo "  expected: $want_py"
+  echo "  current : $found_py"
 fi
 
-section "Pip / Pipx"
-print "pip:  ${pip_path:-not found}"
-print "pip3: ${pip3_path:-not found}"
-print "pipx: ${pipx_path:-not found}"
-[[ -n "$pip_path" ]] && pip -V 2>/dev/null || true
-if [[ -n "$pipx_path" ]]; then
-  pipx environment 2>/dev/null || true
-  pipx list 2>/dev/null || true
+section "📦 Pipx & Pip"
+echo "pipx: $pipx_path"
+echo "pipx default python: ${pipx_default_py:-unknown}"
+echo "pipx installed apps use: ${pipx_apps_py:-unknown}"
+[[ "$pipx_default_py" != "$py_exe" ]] && echo "⚠️  pipx uses different python than shell"
 
-  if [[ -n "$pipx_default_py" && -n "$py_exe" && "$pipx_default_py" != "$py_exe" ]]; then
-    print -P "%F{yellow}WARN%f: pipx default python differs from shell python"
-    print "  pipx : $pipx_default_py"
-    print "  shell: $py_exe"
-  fi
-fi
-
-section "Build & runtime paths"
-print_colon_var CMAKE_PREFIX_PATH
-print_colon_var PKG_CONFIG_PATH
-print_colon_var DYLD_FALLBACK_LIBRARY_PATH
-
-if [[ -n "${DYLD_FALLBACK_LIBRARY_PATH:-}" ]]; then
-  typeset -a dyld_missing
-  for p in ${(s/:/)DYLD_FALLBACK_LIBRARY_PATH}; do
-    [[ -z "$p" ]] && continue
-    [[ -d "$p" ]] || dyld_missing+=("$p")
-  done
-  if (( ${#dyld_missing} )); then
-    print -P "\n%F{yellow}WARN%f: DYLD missing dirs (${#dyld_missing})"
-    print -rl -- $dyld_missing | sed 's/^/  - /'
+section "🔧 Build & Runtime Paths"
+for var in CMAKE_PREFIX_PATH PKG_CONFIG_PATH DYLD_FALLBACK_LIBRARY_PATH; do
+  echo "$var:"
+  if [[ -z "${(P)var}" ]]; then
+    echo "  unset"
   else
-    print -P "\n%F{green}OK%f: DYLD dirs exist"
+    print -rl -- ${(s/:/)${(P)var}} | sed 's/^/  - /'
   fi
-fi
-
-section "Physics stack vars"
-print "ROOTSYS:          ${ROOTSYS_v:-unset}"
-print "GEANT4_BASE:      ${GEANT4_BASE_v:-unset}"
-print "Geant4_DIR:       ${Geant4_DIR_v:-unset}"
-print "REMAGE_PREFIX:    ${REMAGE_PREFIX_v:-unset}"
-print "BXDECAY0_PREFIX:  ${BXDECAY0_PREFIX_v:-unset}"
-
-section "Key commands (resolution)"
-for cmd in brew root geant4-config cmake pkg-config; do
-  cmd_path="$(command -v $cmd 2>/dev/null || true)"
-  print "$cmd: ${cmd_path:-not found}"
 done
 
-section "Runtime smoke tests"
-if command -v root >/dev/null 2>&1; then
-  root -b -q -e 'gSystem->Exit(0);' >/dev/null 2>&1 \
-    && print -P "%F{green}OK%f: root runs" \
-    || print -P "%F{red}FAIL%f: root failed to run"
-else
-  print "root: not found (skipping)"
-fi
+section "🧬 Physics Stack"
+echo "ROOTSYS:         $ROOTSYS_v"
+echo "GEANT4_BASE:     $GEANT4_BASE_v"
+echo "Geant4_DIR:      $Geant4_DIR_v"
+echo "REMAGE_PREFIX:   $REMAGE_PREFIX_v"
+echo "BXDECAY0_PREFIX: $BXDECAY0_PREFIX_v"
 
-if command -v geant4-config >/dev/null 2>&1; then
-  geant4-config --version >/dev/null 2>&1 \
-    && print -P "%F{green}OK%f: geant4-config runs" \
-    || print -P "%F{red}FAIL%f: geant4-config failed"
-else
-  print "geant4-config: not found (skipping)"
-fi
+section "🔍 Tool Checks"
+for tool in brew root geant4-config cmake pkg-config; do
+  echo "$tool: $(command -v $tool 2>/dev/null || echo not found)"
+done
 
-section "Homebrew"
-if [[ -n "$brew_path" ]]; then
-  print "brew: $brew_path"
-  print "brew --prefix:  ${brew_prefix:-error}"
-  print "brew --version: ${brew_ver:-error}"
-else
-  print "brew: not found"
-fi
+section "🧪 Runtime Tests"
+command -v root >/dev/null && root -b -q -e 'gSystem->Exit(0);' >/dev/null 2>&1 \
+  && echo "✅ root runs" || echo "❌ root failed"
+command -v geant4-config >/dev/null && geant4-config --version >/dev/null 2>&1 \
+  && echo "✅ geant4-config runs" || echo "❌ geant4-config failed"
 
-section "Summary flags"
-(( ${#missing} )) && print -P "%F{yellow}PATH%f: missing_dirs=${#missing}" || print -P "%F{green}PATH%f: ok"
-[[ "$found_py" == "$want_py" ]] && print -P "%F{green}PY%f: ok" || print -P "%F{red}PY%f: check"
-[[ -n "$pipx_path" ]] && print -P "%F{green}PIPX%f: present" || print -P "%F{yellow}PIPX%f: missing"
-[[ -n "$GEANT4_BASE_v" ]] && print -P "%F{green}GEANT4%f: set" || print -P "%F{yellow}GEANT4%f: unset"
-[[ -n "$ROOTSYS_v" ]] && print -P "%F{green}ROOT%f: set" || print -P "%F{yellow}ROOT%f: unset"
+section "🧾 Summary"
+(( ${#missing} == 0 )) && echo "✅ PATH: ok" || echo "⚠️  PATH: ${#missing} missing dirs"
+[[ "$found_py" == "$want_py" ]] && echo "✅ PYTHON: ok" || echo "⚠️  PYTHON: mismatch"
+[[ -n "$pipx_path" ]] && echo "✅ PIPX: present" || echo "⚠️  PIPX: missing"
+[[ -n "$GEANT4_BASE_v" ]] && echo "✅ GEANT4: set" || echo "⚠️  GEANT4: unset"
+[[ -n "$ROOTSYS_v" ]] && echo "✅ ROOT: set" || echo "⚠️  ROOT: unset"
 
 hr
-print -P "%F{green}Sanity check complete.%f"
+echo "✅ Sanity check complete."

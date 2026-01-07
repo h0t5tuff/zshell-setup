@@ -18,4 +18,8 @@ for the file .zshrc:
 
 for the file sanity:
 
-same shit
+same shit, then,
+
+> chmod +x ~/sanity
+>
+> ln -s ~/sanity ~/.local/bin/sanity
