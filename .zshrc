@@ -112,7 +112,8 @@ amd64() {
 # ╭───────────────────────────────╮
 # │         🧬 Pipx               │
 # ╰───────────────────────────────╯
-export PIPX_DEFAULT_PYTHON="/opt/homebrew/opt/python@3.12/libexec/bin/python"
+##export PIPX_DEFAULT_PYTHON="/opt/homebrew/opt/python@3.12/libexec/bin/python"
+export PIPX_DEFAULT_PYTHON=/opt/homebrew/opt/python@3.12/bin/python3.12
 alias venv="source ~/venvs/myenv/bin/activate"
 alias jn='pipx run notebook'
 
