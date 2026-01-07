@@ -14,7 +14,7 @@ case "${1:-}" in
   *) echo "Usage: sanity [--brief|--full]"; exit 2 ;;
 esac
 
-want_py="/opt/homebrew/opt/python@3.12/bin/python3.12"
+want_py="/opt/homebrew/opt/python@3.12/libexec/bin/python3"
 
 hr() { [[ "$mode" == "full" ]] && echo -e "\n🔹───────────────────────────────────────────────────────"; }
 section() { [[ "$mode" == "full" ]] && { hr; echo "📦 $1"; } }
