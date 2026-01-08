@@ -1,5 +1,4 @@
 #!/usr/bin/env zsh
-# Enhanced sanity check script 🧠
 # Location: ~/sanity
 
 emulate -L zsh
