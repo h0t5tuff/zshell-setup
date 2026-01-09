@@ -76,6 +76,7 @@ arm64() {
 
   # Python
   path=(/opt/homebrew/opt/python@3.12/libexec/bin /opt/homebrew/opt/python@3.12/bin $path)
+  export Python3_EXECUTABLE="/opt/homebrew/opt/python@3.12/bin/python3.12"
 
   # User
   path=("$HOME/.local/bin" $path)
@@ -84,9 +85,7 @@ arm64() {
   pushd /opt/homebrew > /dev/null
   . bin/thisroot.sh
   popd > /dev/null
-
-  # HDF5 
-  path=(/opt/homebrew/opt/hdf5/bin $path)
+  export ROOT_DIR="/opt/homebrew/opt/root/share/root/cmake"
 
   # Ensure PATH uniqueness
   typeset -gU path
@@ -120,45 +119,51 @@ alias jn='pipx run notebook'
 # ╭───────────────────────────────╮
 # │     🧬 Geant4                 │
 # ╰───────────────────────────────╯
-geant4() {
-  unset G4DATA G4INSTALL G4LEVELGAMMADATA G4NEUTRONHPDATA G4LEDATA G4RADIOACTIVEDATA \
-        G4ABLADATA G4ENSDFSTATEDATA G4INCLDATA G4PARTICLEXSDATA G4PIIDATA \
-        G4REALSURFACEDATA G4SAIDXSDATA G4PROTONHPDATA 2>/dev/null
-  case "$1" in
-    11.4)           export GEANT4_BASE="$HOME/GEANT4/install-11.4" ;;
-    11.4-hdf5-st)   export GEANT4_BASE="$HOME/GEANT4/install-11.4-HDF5-xMTx" ;;
-    *)
-      echo "❌ choose: 11.4 or 11.4-hdf5-st"
-      return 1
-      ;;
-  esac
-  export Geant4_DIR="$GEANT4_BASE/lib/cmake/Geant4"
-  if [[ -f "$GEANT4_BASE/bin/geant4.sh" ]]; then
-    source "$GEANT4_BASE/bin/geant4.sh"
-  fi
-  export DYLD_FALLBACK_LIBRARY_PATH="$GEANT4_BASE/lib:$GEANT4_BASE/lib64:${DYLD_FALLBACK_LIBRARY_PATH:-}"
-  path=("$GEANT4_BASE/bin" $path)
-  typeset -gU path
-}
+export GEANT4_BASE="$HOME/GEANT4/install-11.4"
+if [[ -f "$GEANT4_BASE/bin/geant4.sh" ]]; then
+  source "$GEANT4_BASE/bin/geant4.sh"
+fi
+export Geant4_DIR="$GEANT4_BASE/lib/cmake/Geant4"
+path=("$GEANT4_BASE/bin" $path)
+
+# ╭───────────────────────────────╮
+# │         🧬 HDF5               │
+# ╰───────────────────────────────╯
+export HDF5_ROOT="$HOME/HDF5/install"
+export HDF5_DIR="$HDF5_ROOT/cmake"
+path=("$HDF5_ROOT/bin" $path)
+export CMAKE_PREFIX_PATH="$HDF5_ROOT:${CMAKE_PREFIX_PATH:-}"
+export PKG_CONFIG_PATH="$HDF5_ROOT/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
+export DYLD_LIBRARY_PATH="$HDF5_ROOT/lib:${DYLD_LIBRARY_PATH:-}"
 
 # ╭───────────────────────────────╮
 # │       🧬 remage               │
 # ╰───────────────────────────────╯
-export REMAGE_PREFIX="$HOME/REMAGE/install/remage"
+export REMAGE_HOME="$HOME/REMAGE"
+export REMAGE_PREFIX="$REMAGE_HOME/install"
 path=("$REMAGE_PREFIX/bin" $path)
 export CMAKE_PREFIX_PATH="$REMAGE_PREFIX/lib/cmake:${CMAKE_PREFIX_PATH:-}"
-export DYLD_FALLBACK_LIBRARY_PATH="$REMAGE_PREFIX/lib:${DYLD_FALLBACK_LIBRARY_PATH:-}"
 
 # ╭───────────────────────────────╮
 # │     🧬 BxDecay0               │
 # ╰───────────────────────────────╯
-bxdecay0() {
-  local version="${1:-1.2.1}"
-  export BXDECAY0_PREFIX="$HOME/opt/bxdecay0/$version"
-  export PKG_CONFIG_PATH="$BXDECAY0_PREFIX/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
-  export CMAKE_PREFIX_PATH="$BXDECAY0_PREFIX:${CMAKE_PREFIX_PATH:-}"
-  export DYLD_FALLBACK_LIBRARY_PATH="$BXDECAY0_PREFIX/lib:${DYLD_FALLBACK_LIBRARY_PATH:-}"
-}
+export BXDECAY0_HOME="$HOME/BXDECAY0"
+export BXDECAY0_PREFIX="$BXDECAY0_HOME/install"
+export CMAKE_PREFIX_PATH="$BXDECAY0_PREFIX:${CMAKE_PREFIX_PATH:-}"
+export PKG_CONFIG_PATH="$BXDECAY0_PREFIX/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
+
+# ╭───────────────────────────────╮
+# │   🧬 Default Env (interactive)│
+# ╰───────────────────────────────╯
+export DYLD_FALLBACK_LIBRARY_PATH="$HDF5_ROOT/lib:$GEANT4_BASE/lib:$BXDECAY0_PREFIX/lib:$REMAGE_PREFIX/lib:${DYLD_FALLBACK_LIBRARY_PATH:-}"
+if [[ -o interactive ]]; then
+  arm64 
+fi
+
+
+
+
+
 
 # ╭───────────────────-----------────────────╮
 # │         🧱 ROOT sim: bacon2Data          │
@@ -171,12 +176,3 @@ typeset -gU path
 # ╭───────────────────────────----------────-╮
 # │☢️ GEANT4 sim: BACONCALIBRATIONSIMULATION │
 # ╰───────────────────────────────-----------╯
-
-# ╭───────────────────────────────╮
-# │   🧬 Default Env (interactive)│
-# ╰───────────────────────────────╯
-if [[ -o interactive ]]; then
-  arm64 
-  geant4 11.4
-  bxdecay0 1.2.1
-fi
