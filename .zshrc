@@ -125,6 +125,8 @@ if [[ -f "$GEANT4_BASE/bin/geant4.sh" ]]; then
 fi
 export Geant4_DIR="$GEANT4_BASE/lib/cmake/Geant4"
 path=("$GEANT4_BASE/bin" $path)
+#export G4VIS_DEFAULT_DRIVER=OGLSQt
+export G4VIS_DEFAULT_DRIVER=OGLIQt
 
 # ╭───────────────────────────────╮
 # │         🧬 HDF5               │
@@ -140,7 +142,7 @@ export DYLD_LIBRARY_PATH="$HDF5_ROOT/lib:${DYLD_LIBRARY_PATH:-}"
 # │       🧬 remage               │
 # ╰───────────────────────────────╯
 export REMAGE_HOME="$HOME/REMAGE"
-export REMAGE_PREFIX="$REMAGE_HOME/install"
+export REMAGE_PREFIX="$REMAGE_HOME/install/remage"
 path=("$REMAGE_PREFIX/bin" $path)
 export CMAKE_PREFIX_PATH="$REMAGE_PREFIX/lib/cmake:${CMAKE_PREFIX_PATH:-}"
 
