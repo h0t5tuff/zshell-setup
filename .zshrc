@@ -125,8 +125,7 @@ if [[ -f "$GEANT4_BASE/bin/geant4.sh" ]]; then
 fi
 export Geant4_DIR="$GEANT4_BASE/lib/cmake/Geant4"
 path=("$GEANT4_BASE/bin" $path)
-#export G4VIS_DEFAULT_DRIVER=OGLSQt
-export G4VIS_DEFAULT_DRIVER=OGLIQt
+export G4VIS_DEFAULT_DRIVER=OGLSQt
 
 # ╭───────────────────────────────╮
 # │         🧬 HDF5               │
