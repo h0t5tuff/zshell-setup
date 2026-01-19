@@ -40,7 +40,8 @@ r() {
 # DAQ
 alias daq='ssh -X daq'
 cpycaen() { scp daq:~/ROOT/bacon2Data/compiled/caenData/"$1" . }
-cpygold() { scp daq:~/ROOT/bacon2Data/compiledGold/"$1" . }
+cpyg1() { scp daq:~/ROOT/bacon2Data/compiledGold/"$1" . }
+cpyg2() { scp daq:~/ROOT/bacon2Data/bobjGold/"$1" . }
 cpybm() { scp "$1" daq:/home/bacon/BaconMonitor/ }
 
 # ╭───────────────────────────────╮
@@ -117,6 +118,15 @@ alias venv="source ~/venvs/myenv/bin/activate"
 alias jn='pipx run notebook'
 
 # ╭───────────────────────────────╮
+# │         🧬 HDF5               │
+# ╰───────────────────────────────╯
+export HDF5_ROOT="$HOME/HDF5/install"
+export HDF5_DIR="$HDF5_ROOT/cmake"
+path=("$HDF5_ROOT/bin" $path)
+export PKG_CONFIG_PATH="$HDF5_ROOT/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
+export DYLD_LIBRARY_PATH="$HDF5_ROOT/lib:${DYLD_LIBRARY_PATH:-}"
+
+# ╭───────────────────────────────╮
 # │     🧬 Geant4                 │
 # ╰───────────────────────────────╯
 export GEANT4_BASE="$HOME/GEANT4/install-11.4"
@@ -128,14 +138,11 @@ path=("$GEANT4_BASE/bin" $path)
 export G4VIS_DEFAULT_DRIVER=OGLSQt
 
 # ╭───────────────────────────────╮
-# │         🧬 HDF5               │
+# │     🧬 BxDecay0               │
 # ╰───────────────────────────────╯
-export HDF5_ROOT="$HOME/HDF5/install"
-export HDF5_DIR="$HDF5_ROOT/cmake"
-path=("$HDF5_ROOT/bin" $path)
-export CMAKE_PREFIX_PATH="$HDF5_ROOT:${CMAKE_PREFIX_PATH:-}"
-export PKG_CONFIG_PATH="$HDF5_ROOT/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
-export DYLD_LIBRARY_PATH="$HDF5_ROOT/lib:${DYLD_LIBRARY_PATH:-}"
+export BXDECAY0_HOME="$HOME/BXDECAY0"
+export BXDECAY0_PREFIX="$BXDECAY0_HOME/install"
+export PKG_CONFIG_PATH="$BXDECAY0_PREFIX/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
 
 # ╭───────────────────────────────╮
 # │       🧬 remage               │
@@ -143,25 +150,15 @@ export DYLD_LIBRARY_PATH="$HDF5_ROOT/lib:${DYLD_LIBRARY_PATH:-}"
 export REMAGE_HOME="$HOME/REMAGE"
 export REMAGE_PREFIX="$REMAGE_HOME/install/remage"
 path=("$REMAGE_PREFIX/bin" $path)
-export CMAKE_PREFIX_PATH="$REMAGE_PREFIX/lib/cmake:${CMAKE_PREFIX_PATH:-}"
 
 # ╭───────────────────────────────╮
-# │     🧬 BxDecay0               │
+# │     🧬 Default Env            │
 # ╰───────────────────────────────╯
-export BXDECAY0_HOME="$HOME/BXDECAY0"
-export BXDECAY0_PREFIX="$BXDECAY0_HOME/install"
-export CMAKE_PREFIX_PATH="$BXDECAY0_PREFIX:${CMAKE_PREFIX_PATH:-}"
-export PKG_CONFIG_PATH="$BXDECAY0_PREFIX/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
-
-# ╭───────────────────────────────╮
-# │   🧬 Default Env (interactive)│
-# ╰───────────────────────────────╯
+export CMAKE_PREFIX_PATH="$HDF5_ROOT:$REMAGE_PREFIX/lib/cmake:$BXDECAY0_PREFIX:${CMAKE_PREFIX_PATH:-}"
 export DYLD_FALLBACK_LIBRARY_PATH="$HDF5_ROOT/lib:$GEANT4_BASE/lib:$BXDECAY0_PREFIX/lib:$REMAGE_PREFIX/lib:${DYLD_FALLBACK_LIBRARY_PATH:-}"
 if [[ -o interactive ]]; then
   arm64 
 fi
-
-
 
 
 
