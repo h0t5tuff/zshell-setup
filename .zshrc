@@ -120,11 +120,6 @@ fi
 
 
 
-
-
-
-
-
 # ╭───────────────────────────────╮
 # │         🧬 HDF5               │
 # ╰───────────────────────────────╯
@@ -155,11 +150,11 @@ export PKG_CONFIG_PATH="$BXDECAY0_PREFIX/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
 # │       🧬 remage               │
 # ╰───────────────────────────────╯
 export REMAGE_HOME="$HOME/REMAGE"
-export REMAGE_PREFIX="$REMAGE_HOME/install/remage"
+export REMAGE_PREFIX="$REMAGE_HOME/install"
 path=("$REMAGE_PREFIX/bin" $path)
 
 
-export CMAKE_PREFIX_PATH="$HDF5_ROOT:$REMAGE_PREFIX/lib/cmake:$BXDECAY0_PREFIX:${CMAKE_PREFIX_PATH:-}"
+export CMAKE_PREFIX_PATH="$HDF5_ROOT:$BXDECAY0_PREFIX:$GEANT4_BASE:/opt/homebrew:${CMAKE_PREFIX_PATH:-}"
 export DYLD_FALLBACK_LIBRARY_PATH="$HDF5_ROOT/lib:$GEANT4_BASE/lib:$BXDECAY0_PREFIX/lib:$REMAGE_PREFIX/lib:${DYLD_FALLBACK_LIBRARY_PATH:-}"
 
 
