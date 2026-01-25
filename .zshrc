@@ -123,7 +123,7 @@ fi
 # ╭───────────────────────────────╮
 # │         🧬 HDF5               │
 # ╰───────────────────────────────╯
-export HDF5_ROOT="$HOME/HDF5/install-hdf5-1_14_3"
+export HDF5_ROOT="$HOME/Documents/HDF5/install-hdf5-1_14_3"
 export HDF5_DIR="$HDF5_ROOT/cmake"
 path=("$HDF5_ROOT/bin" $path)
 export PKG_CONFIG_PATH="$HDF5_ROOT/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
@@ -131,7 +131,7 @@ export PKG_CONFIG_PATH="$HDF5_ROOT/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
 # ╭───────────────────────────────╮
 # │     🧬 Geant4                 │
 # ╰───────────────────────────────╯
-export GEANT4_BASE="$HOME/GEANT4/install-v11.4.0"
+export GEANT4_BASE="$HOME/Documents/GEANT4/install-v11.4.0"
 if [[ -f "$GEANT4_BASE/bin/geant4.sh" ]]; then
   source "$GEANT4_BASE/bin/geant4.sh"
 fi
@@ -142,14 +142,14 @@ export G4VIS_DEFAULT_DRIVER=OGLSQt
 # ╭───────────────────────────────╮
 # │     🧬 BxDecay0               │
 # ╰───────────────────────────────╯
-export BXDECAY0_HOME="$HOME/BXDECAY0"
+export BXDECAY0_HOME="$HOME/Documents/BXDECAY0"
 export BXDECAY0_PREFIX="$BXDECAY0_HOME/install"
 export PKG_CONFIG_PATH="$BXDECAY0_PREFIX/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
 
 # ╭───────────────────────────────╮
 # │       🧬 remage               │
 # ╰───────────────────────────────╯
-export REMAGE_HOME="$HOME/REMAGE"
+export REMAGE_HOME="$HOME/Documents/REMAGE"
 export REMAGE_PREFIX="$REMAGE_HOME/install"
 path=("$REMAGE_PREFIX/bin" $path)
 
@@ -167,9 +167,9 @@ export DYLD_FALLBACK_LIBRARY_PATH="$HDF5_ROOT/lib:$GEANT4_BASE/lib:$BXDECAY0_PRE
 # ╭───────────────────-----------────────────╮
 # │         🧱 ROOT sim: bacon2Data          │
 # ╰──────────────────────-----------─────────╯
-export BACONHOME ="$HOME/ROOT"
-export BOBJ="$HOME/ROOT/bacon2Data/bobj"
-export COMPILED="$HOME/ROOT/bacon2Data/compiled"
+export BACONHOME ="$HOME/Documents/ROOT"
+export BOBJ="$HOME/Documents/ROOT/bacon2Data/bobj"
+export COMPILED="$HOME/Documents/ROOT/bacon2Data/compiled"
 path=("$BOBJ" "$COMPILED" "$BACONHOME" $path)
 typeset -gU path
 
