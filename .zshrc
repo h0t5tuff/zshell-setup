@@ -1,5 +1,5 @@
 # ╭───────────────────────────────────────╮
-# │       🧠 Prompt & Git                 │
+# │        ⚡ Prompt & Git                 │
 # ╰───────────────────────────────────────╯
 parse_git_status() {
   git rev-parse --is-inside-work-tree &>/dev/null || return
@@ -43,7 +43,7 @@ cpyg2() { scp daq:~/ROOT/bacon2Data/bobjGold/"$1" . }
 cpybm() { scp "$1" daq:/home/bacon/BaconMonitor/ }
 
 # ╭───────────────────────────────╮
-# │      ✅ zsh PATH handling     │
+# │         zsh PATH handling     │
 # ╰───────────────────────────────╯
 typeset -gU path
 
@@ -108,7 +108,7 @@ amd64() {
 }
 
 # ╭───────────────────────────────╮
-# │     🧬 Default Env            │
+# │      ⚡ Default Env            │
 # ╰───────────────────────────────╯
 export PIPX_DEFAULT_PYTHON=/opt/homebrew/opt/python@3.12/bin/python3.12
 alias venv="source ~/venvs/myenv/bin/activate"
@@ -120,7 +120,7 @@ fi
 
 
 # ╭───────────────────────────────╮
-# │         🧬 HDF5               │
+# │         ☢️ HDF5               │
 # ╰───────────────────────────────╯
 export HDF5_ROOT="$HOME/Documents/HDF5/install-hdf5-1_14_3"
 export HDF5_DIR="$HDF5_ROOT/cmake"
@@ -128,7 +128,7 @@ path=("$HDF5_ROOT/bin" $path)
 export PKG_CONFIG_PATH="$HDF5_ROOT/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
 
 # ╭───────────────────────────────╮
-# │     🧬 Geant4                 │
+# │     ☢️ Geant4                 │
 # ╰───────────────────────────────╯
 export GEANT4_BASE="$HOME/Documents/GEANT4/install-v11.4.0"
 if [[ -f "$GEANT4_BASE/bin/geant4.sh" ]]; then
@@ -139,14 +139,14 @@ path=("$GEANT4_BASE/bin" $path)
 export G4VIS_DEFAULT_DRIVER=OGLSQt
 
 # ╭───────────────────────────────╮
-# │     🧬 BxDecay0               │
+# │     ☢️ BxDecay0               │
 # ╰───────────────────────────────╯
 export BXDECAY0_HOME="$HOME/Documents/BXDECAY0"
 export BXDECAY0_PREFIX="$BXDECAY0_HOME/install"
 export PKG_CONFIG_PATH="$BXDECAY0_PREFIX/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
 
 # ╭───────────────────────────────╮
-# │       🧬 remage               │
+# │       ☢️ remage               │
 # ╰───────────────────────────────╯
 export REMAGE_HOME="$HOME/Documents/REMAGE"
 export REMAGE_PREFIX="$REMAGE_HOME/install"
@@ -173,5 +173,5 @@ path=("$BOBJ" "$COMPILED" "$BACONHOME" $path)
 typeset -gU path
 
 # ╭───────────────────────────----------────-╮
-# │☢️ GEANT4 sim: BACONCALIBRATIONSIMULATION │
+# |🧱 GEANT4 sim: BACONCALIBRATIONSIMULATION │
 # ╰───────────────────────────────-----------╯
