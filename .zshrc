@@ -73,6 +73,9 @@ arm64() {
   # Homebrew
   eval "$(/opt/homebrew/bin/brew shellenv)"
 
+  source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+  source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
   # Python
   path=(/opt/homebrew/opt/python@3.12/libexec/bin /opt/homebrew/opt/python@3.12/bin $path)
   export Python3_EXECUTABLE="/opt/homebrew/opt/python@3.12/bin/python3.12"
