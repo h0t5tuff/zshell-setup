@@ -46,7 +46,6 @@ cpybm() { scp "$1" daq:/home/bacon/BaconMonitor/ }
 # │         zsh PATH handling     │
 # ╰───────────────────────────────╯
 typeset -gU path
-
 # ╭───────────────────────────────╮
 # │       🔁 Env Reset Logic      │
 # ╰───────────────────────────────╯
@@ -87,7 +86,7 @@ arm64() {
   export ROOT_DIR="/opt/homebrew/opt/root/share/root/cmake"
 
   # User
-  path=("$HOME/.local/bin" $path)
+  export PATH="/usr/local/bin:$PATH"
 
   # Ensure PATH uniqueness
   typeset -gU path
@@ -104,7 +103,7 @@ amd64() {
   eval "$(/usr/local/bin/brew shellenv)"
 
   # User
-  path=("$HOME/.local/bin" $path)
+  export PATH="/usr/local/bin:$PATH"
 
   # Ensure PATH uniqueness
   typeset -gU path
@@ -121,18 +120,16 @@ if [[ -o interactive ]]; then
 fi
 
 
-
 # ╭───────────────────────────────╮
-# │         ☢️ HDF5               │
+# │  ☢️ Physics Simulation Stack  │
 # ╰───────────────────────────────╯
+# HDF5               
 export HDF5_ROOT="$HOME/Documents/HDF5/install-hdf5-1_14_3"
 export HDF5_DIR="$HDF5_ROOT/cmake"
 path=("$HDF5_ROOT/bin" $path)
 export PKG_CONFIG_PATH="$HDF5_ROOT/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
 
-# ╭───────────────────────────────╮
-# │     ☢️ Geant4                 │
-# ╰───────────────────────────────╯
+# Geant4                 
 export GEANT4_BASE="$HOME/Documents/GEANT4/install-v11.4.0"
 if [[ -f "$GEANT4_BASE/bin/geant4.sh" ]]; then
   source "$GEANT4_BASE/bin/geant4.sh"
@@ -141,40 +138,33 @@ export Geant4_DIR="$GEANT4_BASE/lib/cmake/Geant4"
 path=("$GEANT4_BASE/bin" $path)
 export G4VIS_DEFAULT_DRIVER=OGLSQt
 
-# ╭───────────────────────────────╮
-# │     ☢️ BxDecay0               │
-# ╰───────────────────────────────╯
+# BxDecay0               
 export BXDECAY0_HOME="$HOME/Documents/BXDECAY0"
 export BXDECAY0_PREFIX="$BXDECAY0_HOME/install"
 export PKG_CONFIG_PATH="$BXDECAY0_PREFIX/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
 
-# ╭───────────────────────────────╮
-# │       ☢️ remage               │
-# ╰───────────────────────────────╯
+# remage               
 export REMAGE_HOME="$HOME/Documents/REMAGE"
 export REMAGE_PREFIX="$REMAGE_HOME/install"
 path=("$REMAGE_PREFIX/bin" $path)
 
-
+# path stuff
 export CMAKE_PREFIX_PATH="$HDF5_ROOT;$BXDECAY0_PREFIX;$GEANT4_BASE;/opt/homebrew/opt/root;/opt/homebrew;${CMAKE_PREFIX_PATH:-}"
 export DYLD_FALLBACK_LIBRARY_PATH="$HDF5_ROOT/lib:$GEANT4_BASE/lib:$BXDECAY0_PREFIX/lib:$REMAGE_PREFIX/lib:${DYLD_FALLBACK_LIBRARY_PATH:-}"
 
 
-
-
-
-
-
-
-# ╭───────────────────-----------────────────╮
-# │         🧱 ROOT sim: bacon2Data          │
-# ╰──────────────────────-----------─────────╯
+# ╭───────────────────────────────╮
+# │         ☢️ Sims               │
+# ╰───────────────────────────────╯
+# bacon2Data          
 export BACONHOME="$HOME/Documents/ROOT"
 export BOBJ="$HOME/Documents/ROOT/bacon2Data/bobj"
 export COMPILED="$HOME/Documents/ROOT/bacon2Data/compiled"
 path=("$BOBJ" "$COMPILED" "$BACONHOME" $path)
 typeset -gU path
 
-# ╭───────────────────────────----------────-╮
-# |🧱 GEANT4 sim: BACONCALIBRATIONSIMULATION │
-# ╰───────────────────────────────-----------╯
+# BACONCALIBRATIONSIMULATION 
+
+
+
+
