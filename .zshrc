@@ -37,9 +37,8 @@ r() {
   root -l "$1" -e 'new TBrowser();'
 }
 # DAQ
-cpycaen() { scp daq:~/ROOT/bacon2Data/compiled/caenData/"$1" . }
-cpyg1() { scp daq:~/ROOT/bacon2Data/compiledGold/"$1" . }
-cpyg2() { scp daq:~/ROOT/bacon2Data/bobjGold/"$1" . }
+cpyc() { scp daq:~/ROOT/bacon2Data/compiledGold/"$1" . }
+cpyb() { scp daq:~/ROOT/bacon2Data/bobjGold/"$1" . }
 cpybm() { scp "$1" daq:/home/bacon/BaconMonitor/ }
 
 # ╭───────────────────────────────╮
@@ -72,8 +71,8 @@ arm64() {
   # Homebrew
   eval "$(/opt/homebrew/bin/brew shellenv)"
 
-  source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-  source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+  #source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+  #source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
   # Python
   path=(/opt/homebrew/opt/python@3.12/libexec/bin /opt/homebrew/opt/python@3.12/bin $path)
@@ -168,3 +167,6 @@ typeset -gU path
 
 
 
+
+# Created by `pipx` on 2026-04-17 08:50:23
+export PATH="$PATH:/Users/tensor/.local/bin"
