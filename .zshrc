@@ -113,7 +113,7 @@ amd64() {
 # ╰───────────────────────────────╯
 export PIPX_DEFAULT_PYTHON=/opt/homebrew/opt/python@3.12/bin/python3.12
 alias jn='jupyter-notebook'
-alias venv="source ~/venvs/myenv/bin/activate"   #python 3.13
+alias v="source ~/venvs/v/bin/activate" 
 if [[ -o interactive ]]; then
   arm64 
 fi
